@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversion Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CSS (ADD THIS!) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <button class="btn btn-sm btn-outline-light" onclick="toggleDarkMode()">
+        <i class="bi bi-moon"></i> Dark Mode
+    </button>
+
+    <style>
+        .dark-mode {
+            background: #313334;
+            /* Dark gray background */
+            color: #f8f9fa;
+            /* Light gray text */
+        }
+
+        /* Card styling */
+        .dark-mode .card {
+            background: #6a1b9a;
+            /* Deep purple instead of pink for better contrast */
+            border-color: #9c27b0;
+            color: #ffffff !important;
+        }
+
+        /* Header and title text */
+        .dark-mode .conversion-header h3,
+        .dark-mode .conversion-header code {
+            color: #212121 !important;
+            /* Bright yellow for maximum contrast */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* All text elements */
+        .dark-mode .card-body,
+        .dark-mode .card-header,
+        .dark-mode .production,
+        .dark-mode .pda-info,
+        .dark-mode .transition,
+        .dark-mode .pda-info code,
+        /* Input/stack symbols */
+        .dark-mode .transitions code {
+            /* Transition arrows */
+            color: #ffffff !important;
+        }
+
+        /* State labels (q0, q1, etc.) */
+        .dark-mode .card-body code {
+            background-color: transparent !important;
+            color: #b078ff !important;
+            padding: 2px 4px;
+        }
+
+        /* Buttons */
+        .dark-mode .btn-outline-light {
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+
+        .dark-mode .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        /* Alerts */
+        .dark-mode .alert-success {
+            background-color: #2e7d32;
+            color: #ffffff;
+        }
+
+        .dark-mode .alert-danger {
+            background-color: #c62828;
+            color: #ffffff;
+        }
+
+        /* Dropdowns */
+        .dark-mode .dropdown-menu {
+            background-color: #6a1b9a;
+            border-color: #9c27b0;
+        }
+
+        .dark-mode .dropdown-item {
+            color: #ffffff;
+        }
+
+        .dark-mode .dropdown-item:hover {
+            background-color: #9c27b0;
+        }
+    </style>
+
+    <script>
+        function toggleDarkMode() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+
+            // Toggle icon and button text
+            const icon = document.querySelector('.bi-moon');
+            const button = document.querySelector('.btn-outline-light');
+
+            if (body.classList.contains('dark-mode')) {
+                icon.classList.replace('bi-moon', 'bi-sun');
+                button.innerHTML = '<i class="bi bi-sun"></i> Light Mode';
+            } else {
+                icon.classList.replace('bi-sun', 'bi-moon');
+                button.innerHTML = '<i class="bi bi-moon"></i> Dark Mode';
+            }
+
+            // Save preference
+            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+        }
+
+        // Load saved preference
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.bi-moon').classList.replace('bi-moon', 'bi-sun');
+                document.querySelector('.btn-outline-light').innerHTML = '<i class="bi bi-sun"></i> Light Mode';
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+
+    <div class="container main-container">
+        <nav class="conversion-header mb-4">
+            <a href="/" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> New Conversion
+            </a>
+            <h3>Results for: <code>{{ regex }}</code></h3>
+        </nav>
+
+
+        <div class="row g-3">
+            <!-- DFA Visualization -->
+            <div class="col-12">
+                <div class="card automata-card">
+                    <div class="card-header">
+                        <i class="bi bi-diagram-3"></i> DFA Visualization
+                    </div>
+                    <div class="card-body">
+                        {{ dfa_svg|safe }}
+                    </div>
+                </div>
+            </div>
+            <div class="container main-container">
+                <!-- Existing content remains same -->
+
+                <!-- Add Quick Learning Guide Section -->
+                <div class="card automata-card mt-4"> <!-- Added automata-card class -->
+                    <div class="card-header">
+                        <i class="bi bi-lightbulb"></i> Quick Learning Guide
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Conversion Steps -->
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Regex to DFA Conversion Steps</h5>
+                                <div class="productions"> <!-- Use existing productions class -->
+                                    <div class="production">
+                                        <code>1. Create ε-NFA from Regex</code>
+                                    </div>
+                                    <div class="production">
+                                        <code>2. Remove ε-transitions</code>
+                                    </div>
+                                    <div class="production">
+                                        <code>3. Convert to DFA (subset construction)</code>
+                                    </div>
+                                    <div class="production">
+                                        <code>4. Minimize the DFA</code>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Common Patterns -->
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Common Regex Patterns</h5>
+                                <div class="transitions"> <!-- Use existing transitions class -->
+                                    <div class="transition">
+                                        <code onclick="loadExample('a(b|c)*d')">
+                                            Strings ending with d:<br>a(b|c)*d
+                                        </code>
+                                    </div>
+                                    <div class="transition">
+                                        <code onclick="loadExample('(0|1)(0|1)*')">
+                                            Binary numbers:<br>(0|1)(0|1)*
+                                        </code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                function loadExample(regex) {
+                    window.location.href = `/?regex=${encodeURIComponent(regex)}`;
+                }
+            </script>
+
+            <!-- CFG Section -->
+            <div class="col-md-6">
+                <div class="card automata-card">
+                    <div class="card-header">
+                        <i class="bi bi-file-code"></i> Context-Free Grammar
+                    </div>
+                    <div class="card-body">
+                        <h5>Start Symbol: <code>{{ cfg.start }}</code></h5>
+                        <div class="productions">
+                            {% for nt, prods in cfg.productions.items() %}
+                            <div class="production">
+                                <code>{{ nt }} → {% for p in prods %}{{ p }}{% if not loop.last %} | {% endif %}{% endfor %}</code>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PDA Section -->
+            <div class="col-12">
+                <div class="card automata-card">
+                    <div class="card-header">
+                        <i class="bi bi-stack"></i> Pushdown Automaton
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="pda-info">
+                                    <h6>States</h6>
+                                    <code>{{ pda.states|join(', ') }}</code>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="pda-info">
+                                    <h6>Input Symbols</h6>
+                                    <code>{{ pda.input_symbols|join(', ') }}</code>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="pda-info">
+                                    <h6>Stack Symbols</h6>
+                                    <code>{{ pda.stack_symbols|join(', ') }}</code>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <h5>Transitions</h5>
+                        <div class="transitions">
+                            {% for t in pda.transitions %}
+                            <div class="transition">
+                                <code>δ({{ t.current }}, {{ t.input }}, {{ t.pop }}) → ({{ t.next }}, [{{ t.push|join }}])</code>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learn Automata Section -->
+            <div class="col-md-6">
+                <div class="card automata-card">
+                    <div class="card-header">
+                        <i class="bi bi-lightbulb"></i> Learn Automata
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">Explore interactive resources to deepen your understanding:</p>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="bi bi-diagram-2-fill"></i>
+                                <a href="https://www.geeksforgeeks.org/introduction-of-finite-automata/"
+                                    class="btn btn-link p-0 align-baseline" target="_blank" rel="noopener noreferrer">
+                                    Learn about DFA <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-file-code-fill"></i>
+                                <a href="https://www.geeksforgeeks.org/what-is-context-free-grammar/"
+                                    class="btn btn-link p-0 align-baseline" target="_blank" rel="noopener noreferrer">
+                                    Learn about CFG <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-stack"></i>
+                                <a href="https://www.geeksforgeeks.org/introduction-of-pushdown-automata/"
+                                    class="btn btn-link p-0 align-baseline" target="_blank" rel="noopener noreferrer">
+                                    Learn about PDA <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-outline-dark mt-2" id="exportDFABtn" onclick="exportDFA()">
+                <i class="bi bi-download"></i> Export DFA
+            </button>
+
+            <style>
+                /* Light mode styles */
+                #exportDFABtn {
+                    transition: all 0.3s ease;
+                    border-color: #68c2ff;
+                    color: #e5e8ea;
+                }
+
+                #exportDFABtn:hover {
+                    background-color: #4592ea;
+                    /* Dark blue on hover */
+                    border-color: #4592ea;
+                    color: white;
+                }
+
+                /* Dark mode adjustments */
+                .dark-mode #exportDFABtn {
+                    border-color: #ffffff;
+                    color: #ffffff;
+                }
+
+                .dark-mode #exportDFABtn:hover {
+                    background-color: #6a1b9a;
+                    /* Slightly lighter blue for dark mode */
+                    border-color: #6a1b9a;
+                    color: white;
+                }
+            </style>
+
+            <script>
+                function exportDFA() {
+                    const svg = document.querySelector('.card-body svg').outerHTML;
+                    const blob = new Blob([svg], { type: 'image/svg+xml' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'dfa.svg';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
+
+                // Add dark mode detection for the button
+                document.addEventListener('DOMContentLoaded', function () {
+                    const exportBtn = document.getElementById('exportDFABtn');
+                    if (document.body.classList.contains('dark-mode')) {
+                        exportBtn.classList.add('dark-mode');
+                    }
+                });
+            </script>
+
+</body>
+
+</html>
