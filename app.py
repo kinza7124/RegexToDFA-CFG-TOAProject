@@ -4,13 +4,7 @@ from automata.fa.dfa import DFA
 from graphviz import Digraph
 from datetime import datetime
 import os
-app = Flask(__name__)
-
-
-# This is required by Vercel to invoke the app
-def handler(environ, start_response):
-    return app.wsgi_app(environ, start_response)
-
+app = Flask(__name__, template_folder=os.path.dirname(os.path.abspath(__file__)))
 # ----------------- Core Functions -----------------
 def regex_to_dfa(regex_str):
     enfa = NFA.from_regex(regex_str)
