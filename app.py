@@ -1,12 +1,11 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 from automata.fa.nfa import NFA
 from automata.fa.dfa import DFA
 from graphviz import Digraph
 from datetime import datetime
-import matplotlib.pyplot as plt
-import networkx as nx
-import os
-app = Flask(__name__, template_folder=os.path.dirname(os.path.abspath(__file__)))
+import os   
+app = Flask(__name__)
+
 # ----------------- Core Functions -----------------
 def regex_to_dfa(regex_str):
     enfa = NFA.from_regex(regex_str)
@@ -55,10 +54,10 @@ def index():
         dfa = regex_to_dfa(regex)
         cfg = generate_cfg(dfa)
         pda = generate_pda(dfa)
-        dfa_image = draw_automaton(dfa)  # Now returns base64 image
+        dfa_svg = draw_automaton(dfa)
         return render_template('results.html', 
                              regex=regex,
-                             dfa_image=dfa_image,
+                             dfa_svg=dfa_svg,
                              cfg=cfg,
                              pda=pda)
     return render_template('index.html')
@@ -85,56 +84,17 @@ def analyze_complexity(dfa):
         'time_complexity': f"O({len(dfa.states)})"
     }
 # ----------------- Visualization -----------------
-# def draw_automaton(dfa):
-#     dot = Digraph()
-#     dot.attr(rankdir='LR')
-#     for state in dfa.states:
-#         dot.node(str(state), shape='doublecircle' if state in dfa.final_states else 'circle')
-#     dot.node('', shape='none', width='0', height='0')
-#     dot.edge('', str(dfa.initial_state))
-#     for src, transitions in dfa.transitions.items():
-#         for symbol, dest in transitions.items():
-#             dot.edge(str(src), str(dest), label=symbol)
-#     return dot.pipe(format='svg').decode('utf-8')
-
-
 def draw_automaton(dfa):
-    G = nx.DiGraph()
-    
-    # Add states
+    dot = Digraph()
+    dot.attr(rankdir='LR')
     for state in dfa.states:
-        G.add_node(state, final=(state in dfa.final_states))
-    
-    # Add transitions
+        dot.node(str(state), shape='doublecircle' if state in dfa.final_states else 'circle')
+    dot.node('', shape='none', width='0', height='0')
+    dot.edge('', str(dfa.initial_state))
     for src, transitions in dfa.transitions.items():
         for symbol, dest in transitions.items():
-            G.add_edge(src, dest, label=symbol)
-    
-    # Draw graph
-    pos = nx.spring_layout(G)
-    plt.figure(figsize=(10, 8))
-    
-    # Draw nodes
-    final_states = [n for n, attr in G.nodes(data=True) if attr['final']]
-    non_final_states = [n for n in G.nodes if n not in final_states]
-    
-    nx.draw_networkx_nodes(G, pos, nodelist=non_final_states, node_size=1500, node_color='lightblue')
-    nx.draw_networkx_nodes(G, pos, nodelist=final_states, node_size=1500, node_color='lightblue', node_shape='d')
-    
-    # Draw edges
-    nx.draw_networkx_edges(G, pos, arrowstyle='->', arrowsize=20)
-    
-    # Draw labels
-    nx.draw_networkx_labels(G, pos)
-    edge_labels = {(u, v): d['label'] for u, v, d in G.edges(data=True)}
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
-    
-    # Save to buffer
-    from io import BytesIO
-    buf = BytesIO()
-    plt.savefig(buf, format='png')
-    plt.close()
-    buf.seek(0)
-    return f"data:image/png;base64,{base64.b64encode(buf.read()).decode('utf-8')}"
+            dot.edge(str(src), str(dest), label=symbol)
+    return dot.pipe(format='svg').decode('utf-8')
+
 if __name__ == '__main__':
     app.run(debug=True)
