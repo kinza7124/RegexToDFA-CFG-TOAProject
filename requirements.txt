@@ -1,4 +1,0 @@
-flask
-automata-lib
-networkx
-matplotlib
