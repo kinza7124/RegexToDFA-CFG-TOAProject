@@ -31,11 +31,6 @@ venv\Scripts\activate
 python3 -m venv venv
 source venv/bin/activate
 ```
-### 3. Install Required Packages 
-
-```bash
-pip install -r requirements.txt
-```
 
 ### ▶️ Running the App
 ```bash
